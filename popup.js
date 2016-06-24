@@ -1,0 +1,1 @@
+chrome.tabs.create({"url":"test","selected":true}, function(tab){});
