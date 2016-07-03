@@ -15,7 +15,7 @@ chrome.windows.get(-2, {}, function(window){
 	else{
 		document.documentElement.style.width= "800px";
 	}
-	
+
 	if(window.height*0.8 <= 600){
 		document.documentElement.style.height= window.height*0.8+"px";
 	}
@@ -64,10 +64,12 @@ function close_tabs(tab_list){
 
 function restore_tab_group(group_idx){
 	chrome.tabs.query({"currentWindow": true}, function(tabs){
-		tab_group[group_idx]["tab_list"].forEach(function(url){
-			chrome.tabs.create({"url":url}, function(tab){});
+		tab_group[group_idx]["tab_list"].forEach(function(restoring_tab){
+			chrome.tabs.create({"url":restoring_tab.url}, function(tab){});
 		});//restore tab
 		close_tabs(tabs);
+		cur_group_idx= group_idx;
+		save_tab_group();
 	});
 }
 
@@ -80,10 +82,22 @@ function render_tab_group(group_idx){
 		tab_list.removeChild(tab_list.firstChild);
 	}
 
-	for(var idx in tab_group){
+	while(ul_tab_groups.firstChild){
+		ul_tab_groups.removeChild(ul_tab_groups.firstChild);
+	}
+
+	for(let idx in tab_group){
 		var new_li= document.createElement("li");
+		new_li.id= `li_group_${idx}`;
+
 		var new_a= document.createElement("a");
+		new_a.onclick= function(){render_tab_group(idx)};
+
 		var group_name= document.createTextNode(tab_group[idx]["group_name"]);
+
+		if(idx == group_idx){
+			new_li.className="active";
+		}
 
 		new_a.appendChild(group_name);
 		new_li.appendChild(new_a);
@@ -96,6 +110,19 @@ function render_tab_group(group_idx){
 		new_li.appendChild(tab_txt);
 		tab_list.appendChild(new_li);
 	})
+
+	document.getElementById("li_add_group").onclick= function(){
+		var new_idx=0;
+		while(Object.keys(tab_group).includes(new_idx.toString())){
+			new_idx++;
+		}
+		tab_group[new_idx]={"group_name":new_idx, "tab_list":[]};
+		render_tab_group(group_idx);
+	};
+
+	document.getElementById("div_tab_list").onclick= function(){
+		restore_tab_group(group_idx);
+	}
 }
 
 function render_popup(){
