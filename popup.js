@@ -1,13 +1,3 @@
-//chrome.tabs.create({"url":"test","selected":true}, function(tab){});
-
-function void_func(){};
-
-function Tab(url){
-	this.url= url;
-}
-tab_group={};
-cur_group_idx=0;
-
 chrome.windows.get(-2, {}, function(window){
 	if(window.width*0.8 <= 800){
 		document.documentElement.style.width= window.width*0.8+"px";
@@ -23,55 +13,6 @@ chrome.windows.get(-2, {}, function(window){
 		document.documentElement.style.height= "600px";
 	}
 })
-
-function save_tab_group(){
-	chrome.storage.local.set({"tab_group": tab_group, "cur_group_idx": cur_group_idx});
-}
-
-function update_cur_tab_group(after= void_func){
-	chrome.tabs.query({"currentWindow": true}, function(tabs){
-		var tab_list=[];
-		tabs.forEach(function(tab){
-			tab_list.push(new Tab(tab.url))
-		})
-		tab_group[cur_group_idx]= {"group_name":cur_group_idx, "tab_list":tab_list};
-		after();
-	})
-}
-
-function load_tab_group(after= void_func){
-	chrome.storage.local.get("tab_group", function(result){
-		tab_group= result["tab_group"];
-		if(!tab_group){
-			cur_group_idx=0;
-			tab_group={};
-		}
-		chrome.storage.local.get("cur_group_idx", function(result){
-			cur_group_idx= result["cur_group_idx"];
-			if(!cur_group_idx){
-				cur_group_idx= 0;
-			}
-		});
-		after();
-	});
-}
-
-function close_tabs(tab_list){
-	tab_list.forEach(function(tab){
-		chrome.tabs.remove(tab.id, function(){});
-	})
-}
-
-function restore_tab_group(group_idx){
-	chrome.tabs.query({"currentWindow": true}, function(tabs){
-		tab_group[group_idx]["tab_list"].forEach(function(restoring_tab){
-			chrome.tabs.create({"url":restoring_tab.url}, function(tab){});
-		});//restore tab
-		close_tabs(tabs);
-		cur_group_idx= group_idx;
-		save_tab_group();
-	});
-}
 
 function render_tab_group(group_idx){
 	var tabs= tab_group[group_idx]["tab_list"];
@@ -117,6 +58,7 @@ function render_tab_group(group_idx){
 			new_idx++;
 		}
 		tab_group[new_idx]={"group_name":new_idx, "tab_list":[]};
+		tab_group[new_idx]["tab_list"].push(new Tab("chrome://newtab/"))
 		render_tab_group(group_idx);
 	};
 
@@ -132,5 +74,4 @@ function render_popup(){
 		})
 	})
 }
-
 render_popup();

@@ -11,7 +11,7 @@
 	"default_title": "Group Tabs"
 	},
 	"background": {
-		"scripts": ["background.js"]
+		"scripts": ["tab_group.js", "background.js"]
 	},
 	"permissions": [
 		"activeTab","tabs", "storage"
