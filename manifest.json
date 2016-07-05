@@ -2,8 +2,8 @@
 	"manifest_version": 2,
 
 	"name": "Group Tabs",
-	"description": "This extension shows a Google Image search result for the current page",
-	"version": "1.0",
+	"description": "Chrome extension inspired by Firefox tab group extension",
+	"version": "0.01",
 
 	"browser_action": {
 		"default_icon": "icon.png",
