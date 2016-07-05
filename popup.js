@@ -16,6 +16,7 @@ chrome.windows.get(-2, {}, function(window){
 
 function render_tab_group(group_idx){
 	var tabs= tab_group[group_idx]["tab_list"];
+	var tab_settings= document.getElementById("tab_settings");
 	var tab_list= document.getElementById("tab_list");
 	var ul_tab_groups= document.getElementById("tab_groups");
 
@@ -45,6 +46,13 @@ function render_tab_group(group_idx){
 		ul_tab_groups.appendChild(new_li);
 	}
 
+
+	var group_name_change_input = document.getElementById("group_name_change_input");
+	group_name_change_input.value = tab_group[group_idx]["group_name"];
+	group_name_change_input.onkeyup = function() {
+		change_group_name(group_idx, group_name_change_input.value);
+	}
+
 	tabs.forEach(function(tab){
 		var new_li= document.createElement("li");
 		var tab_txt= document.createTextNode(tab.url);
@@ -65,6 +73,12 @@ function render_tab_group(group_idx){
 	document.getElementById("div_tab_list").onclick= function(){
 		restore_tab_group(group_idx);
 	}
+}
+
+function change_group_name(group_idx, value) {
+	tab_group[group_idx]["group_name"] = value;
+	render_tab_group(group_idx);
+	save_tab_group();
 }
 
 function render_popup(){

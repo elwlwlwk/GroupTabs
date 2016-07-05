@@ -22,7 +22,7 @@ function refresh_cur_tab_group(){
 					tabs.forEach(function(tab){
 						tab_list.push(new Tab(tab.url));
 					})
-					tab_group[cur_group_idx]= {"group_name":cur_group_idx, "tab_list":tab_list};
+					tab_group[cur_group_idx]= {"group_name":tab_group[cur_group_idx]["group_name"], "tab_list":tab_list};
 					chrome.storage.local.set({"tab_group": tab_group, "cur_group_idx": cur_group_idx});
 				}
 			});

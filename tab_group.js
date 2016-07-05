@@ -18,7 +18,7 @@ function update_cur_tab_group(after= void_func){
 		tabs.forEach(function(tab){
 			tab_list.push(new Tab(tab.url));
 		})
-		tab_group[cur_group_idx]= {"group_name":cur_group_idx, "tab_list":tab_list};
+		tab_group[cur_group_idx]= {"group_name":tab_group[cur_group_idx]["group_name"], "tab_list":tab_list};
 		save_tab_group();
 		after();
 	})
