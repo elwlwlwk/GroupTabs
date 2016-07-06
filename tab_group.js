@@ -8,8 +8,9 @@ function Tab(url){
 
 function void_func(){};
 
-function save_tab_group(){
+function save_tab_group(after= void_func){
 	chrome.storage.local.set({"tab_group": tab_group, "cur_group_idx": cur_group_idx});
+	after();
 }
 
 function update_cur_tab_group(after= void_func){
@@ -47,11 +48,28 @@ function close_tabs(tab_list){
 	})
 }
 
-function restore_tab_group(group_idx){
+function close_tab_url(url){
+	chrome.tabs.query({}, function(tabs){
+		tabs.forEach(function(tab){
+			if(tab.url=== url){
+				if(tabs.length== 1){
+					chrome.tabs.create({"url":"chrome://newtab/", "active": true}, function(tab){});
+				}
+				chrome.tabs.remove(tab.id, function(){});
+			}
+		})
+	});
+}
+
+function restore_tab_group(group_idx, focusing_tab){
 	cur_group_idx= group_idx;
 	chrome.tabs.query({}, function(tabs){
 		tab_group[group_idx]["tab_list"].forEach(function(restoring_tab){
-			chrome.tabs.create({"url":restoring_tab.url}, function(tab){});
+			if(restoring_tab== focusing_tab){
+				chrome.tabs.create({"url":restoring_tab.url, "active": true}, function(tab){});
+			}else{
+				chrome.tabs.create({"url":restoring_tab.url, "active": false}, function(tab){});
+			}
 		});//restore tab
 		close_tabs(tabs);
 		save_tab_group();

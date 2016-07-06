@@ -1,3 +1,5 @@
+var dragging_tab;
+
 chrome.windows.get(-2, {}, function(window){
 	if(window.width*0.8 <= 800){
 		document.documentElement.style.width= window.width*0.8+"px";
@@ -28,12 +30,27 @@ function render_tab_group(group_idx){
 		ul_tab_groups.removeChild(ul_tab_groups.firstChild);
 	}
 
-	for(let idx in tab_group){
+	if(!tab_group[group_idx]["tab_list"].length){
+		tab_group[group_idx]["tab_list"].push(new Tab("chrome://newtab/"));
+	}
+
+	for(let idx in tab_group){//append tab group list to dom
 		var new_li= document.createElement("li");
 		new_li.id= `li_group_${idx}`;
+		new_li.onclick= function(){render_tab_group(idx)};
+		new_li.ondragover= function(ev){ev.preventDefault();};
+		new_li.ondrop= function(ev){
+			ev.preventDefault();
+			tab_group[idx]["tab_list"].push(dragging_tab["tab"]);
+			tab_group[dragging_tab["group_idx"]]["tab_list"].splice(tab_group[dragging_tab["group_idx"]]["tab_list"].indexOf(dragging_tab["tab"]),1);
+			close_tab_url(dragging_tab["tab"]["url"]);
+			save_tab_group(render_tab_group(group_idx));
+		};
 
 		var new_a= document.createElement("a");
-		new_a.onclick= function(){render_tab_group(idx)};
+
+		var remove_button= document.createElement("span");
+		remove_button.className="glyphicon glyphicon-remove";
 
 		var group_name= document.createTextNode(tab_group[idx]["group_name"]);
 
@@ -42,6 +59,7 @@ function render_tab_group(group_idx){
 		}
 
 		new_a.appendChild(group_name);
+		//new_a.appendChild(remove_button);
 		new_li.appendChild(new_a);
 		ul_tab_groups.appendChild(new_li);
 	}
@@ -53,10 +71,31 @@ function render_tab_group(group_idx){
 		change_group_name(group_idx, group_name_change_input.value);
 	}
 
-	tabs.forEach(function(tab){
+	tabs.forEach(function(tab){//append tab list to dom
 		var new_li= document.createElement("li");
+		var new_a= document.createElement("a");
+		new_a.draggable="true";
+		new_a.ondragstart= function(ev){
+			dragging_tab= {"group_idx": group_idx, "tab": tab};
+		}
+		new_a.onclick= function(){
+			restore_tab_group(group_idx, tab);
+		}
+
+		var remove_button= document.createElement("span");
+		remove_button.className= "glyphicon glyphicon-remove";
+		remove_button.onclick= function(){
+			tab_group[group_idx]["tab_list"].splice(tab_group[group_idx]["tab_list"].indexOf(tab), 1);
+			if(group_idx== cur_group_idx){
+				close_tab_url(tab.url);
+			}
+			save_tab_group(render_tab_group(group_idx));
+		}
+
 		var tab_txt= document.createTextNode(tab.url);
-		new_li.appendChild(tab_txt);
+		new_a.appendChild(tab_txt);
+		new_li.appendChild(new_a);
+		new_li.appendChild(remove_button);
 		tab_list.appendChild(new_li);
 	})
 
@@ -66,13 +105,8 @@ function render_tab_group(group_idx){
 			new_idx++;
 		}
 		tab_group[new_idx]={"group_name":new_idx, "tab_list":[]};
-		tab_group[new_idx]["tab_list"].push(new Tab("chrome://newtab/"))
 		render_tab_group(group_idx);
 	};
-
-	document.getElementById("div_tab_list").onclick= function(){
-		restore_tab_group(group_idx);
-	}
 }
 
 function change_group_name(group_idx, value) {
