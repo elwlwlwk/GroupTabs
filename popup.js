@@ -17,6 +17,16 @@ chrome.windows.get(-2, {}, function(window){
 })
 
 function render_tab_group(group_idx){
+	if(!tab_group.length){
+				tab_group.push({"group_name":0, "tab_list":[]});
+	}
+	if(group_idx> tab_group.length-1){
+		group_idx= tab_group.length-1;
+	}
+	if(!tab_group[group_idx]["tab_list"].length){
+		tab_group[group_idx]["tab_list"].push(new Tab("https://www.google.co.kr/favicon.ico", "chrome://newtab/"));
+	}
+
 	var tabs= tab_group[group_idx]["tab_list"];
 	var tab_settings= document.getElementById("tab_settings");
 	var tab_list= document.getElementById("tab_list");
@@ -30,36 +40,39 @@ function render_tab_group(group_idx){
 		ul_tab_groups.removeChild(ul_tab_groups.firstChild);
 	}
 
-	if(!tab_group[group_idx]["tab_list"].length){
-		tab_group[group_idx]["tab_list"].push(new Tab("chrome://newtab/"));
-	}
-
 	for(let idx in tab_group){//append tab group list to dom
 		var new_li= document.createElement("li");
 		new_li.id= `li_group_${idx}`;
-		new_li.onclick= function(){render_tab_group(idx)};
 		new_li.ondragover= function(ev){ev.preventDefault();};
 		new_li.ondrop= function(ev){
 			ev.preventDefault();
 			tab_group[idx]["tab_list"].push(dragging_tab["tab"]);
 			tab_group[dragging_tab["group_idx"]]["tab_list"].splice(tab_group[dragging_tab["group_idx"]]["tab_list"].indexOf(dragging_tab["tab"]),1);
-			close_tab_url(dragging_tab["tab"]["url"]);
+			if(dragging_tab["group_idx"]== cur_group_idx){
+				close_tab_url(dragging_tab["tab"]["url"]);
+			}
 			save_tab_group(render_tab_group(group_idx));
 		};
 
 		var new_a= document.createElement("a");
+		new_a.onclick= function(){render_tab_group(idx)};
 
 		var remove_button= document.createElement("span");
 		remove_button.className="glyphicon glyphicon-remove";
+		remove_button.onclick= function(){
+			tab_group.splice(idx,1);
+			save_tab_group(render_tab_group(group_idx));
+			event.stopPropagation();
+		};
 
-		var group_name= document.createTextNode(tab_group[idx]["group_name"]);
+		var group_name= document.createTextNode(tab_group[idx]["group_name"]+" ");
 
 		if(idx == group_idx){
 			new_li.className="active";
 		}
 
 		new_a.appendChild(group_name);
-		//new_a.appendChild(remove_button);
+		new_a.appendChild(remove_button);
 		new_li.appendChild(new_a);
 		ul_tab_groups.appendChild(new_li);
 	}
@@ -74,16 +87,19 @@ function render_tab_group(group_idx){
 	tabs.forEach(function(tab){//append tab list to dom
 		var new_li= document.createElement("li");
 		var new_img= document.createElement("img");
-		var new_a= document.createElement("a");
-		new_a.draggable="true";
-		new_a.ondragstart= function(ev){
+
+		var new_button= document.createElement("button");
+		new_button.draggable="true";
+		new_button.className="btn btn-default";
+		new_button.ondragstart= function(ev){
 			dragging_tab= {"group_idx": group_idx, "tab": tab};
 		}
-		new_a.onclick= function(){
+		new_button.onclick= function(){
 			restore_tab_group(group_idx, tab);
 		}
 		new_img.src = tab.favIconUrl;
 
+		var remove_a= document.createElement("a");
 		var remove_button= document.createElement("span");
 		remove_button.className= "glyphicon glyphicon-remove";
 		remove_button.onclick= function(){
@@ -95,10 +111,12 @@ function render_tab_group(group_idx){
 		}
 
 		var tab_txt= document.createTextNode(tab.url);
-		new_a.appendChild(tab_txt);
+
+		new_button.appendChild(tab_txt);
 		new_li.appendChild(new_img);
-		new_li.appendChild(new_a);
-		new_li.appendChild(remove_button);
+		new_li.appendChild(new_button);
+		remove_a.appendChild(remove_button);
+		new_li.appendChild(remove_a);
 		tab_list.appendChild(new_li);
 	})
 
@@ -107,8 +125,8 @@ function render_tab_group(group_idx){
 		while(Object.keys(tab_group).includes(new_idx.toString())){
 			new_idx++;
 		}
-		tab_group[new_idx]={"group_name":new_idx, "tab_list":[]};
-		render_tab_group(group_idx);
+		tab_group.push({"group_name":new_idx, "tab_list":[]});
+		save_tab_group(render_tab_group(group_idx));
 	};
 }
 
