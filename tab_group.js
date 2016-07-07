@@ -1,4 +1,4 @@
-tab_group={};
+tab_group=[];
 cur_group_idx=0;
 bool_restoring_group= false;
 
@@ -30,7 +30,7 @@ function load_tab_group(after= void_func){
 		tab_group= result["tab_group"];
 		if(!tab_group){
 			cur_group_idx=0;
-			tab_group={};
+			tab_group=[];
 		}
 		chrome.storage.local.get("cur_group_idx", function(result){
 			cur_group_idx= result["cur_group_idx"];
