@@ -73,6 +73,7 @@ function render_tab_group(group_idx){
 
 	tabs.forEach(function(tab){//append tab list to dom
 		var new_li= document.createElement("li");
+		var new_img= document.createElement("img");
 		var new_a= document.createElement("a");
 		new_a.draggable="true";
 		new_a.ondragstart= function(ev){
@@ -81,6 +82,7 @@ function render_tab_group(group_idx){
 		new_a.onclick= function(){
 			restore_tab_group(group_idx, tab);
 		}
+		new_img.src = tab.favIconUrl;
 
 		var remove_button= document.createElement("span");
 		remove_button.className= "glyphicon glyphicon-remove";
@@ -94,6 +96,7 @@ function render_tab_group(group_idx){
 
 		var tab_txt= document.createTextNode(tab.url);
 		new_a.appendChild(tab_txt);
+		new_li.appendChild(new_img);
 		new_li.appendChild(new_a);
 		new_li.appendChild(remove_button);
 		tab_list.appendChild(new_li);

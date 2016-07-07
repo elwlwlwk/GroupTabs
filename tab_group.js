@@ -2,7 +2,8 @@ tab_group={};
 cur_group_idx=0;
 bool_restoring_group= false;
 
-function Tab(url){
+function Tab(favIconUrl, url){
+	this.favIconUrl= favIconUrl;
 	this.url= url;
 }
 
@@ -17,7 +18,7 @@ function update_cur_tab_group(after= void_func){
 	chrome.tabs.query({}, function(tabs){
 		var tab_list=[];
 		tabs.forEach(function(tab){
-			tab_list.push(new Tab(tab.url));
+			tab_list.push(new Tab(tab.favIconUrl, tab.url));
 		})
 		var group_name;
 		if (typeof tab_group[cur_group_idx] === "undefined") {
