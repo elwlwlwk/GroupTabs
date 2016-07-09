@@ -13,7 +13,23 @@
 	"background": {
 		"scripts": ["tab_group.js", "background.js"]
 	},
+	"commands": {
+		"previous-group": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+Z"
+			},
+			"description": "previous-group"
+		},
+		"next-group": {
+			"suggested_key": {
+				"default": "Ctrl+Shift+X"
+			},
+			"description": "next-group"
+		}
+	},
 	"permissions": [
 		"activeTab","tabs", "storage"
 	]
+
+
 }
