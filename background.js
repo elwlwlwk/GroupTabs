@@ -40,5 +40,23 @@ function init_tab_group(){
 	)
 }
 
+
+chrome.commands.onCommand.addListener(function(command) {
+	var idx = cur_group_idx;
+	if(command == "previous-group") {
+		idx--;
+		if(idx < 0) {
+			idx = tab_group.length;
+		}
+		restore_tab_group(idx, new Tab());
+	} else if(command == "next-group") {
+		idx++;
+		if(tab_group.length<=idx) {
+			idx = 0;
+		}
+		restore_tab_group(idx, new Tab());
+	}
+});
+
 init_tab_group();
 setInterval(function(){refresh_cur_tab_group()}, 1000);
