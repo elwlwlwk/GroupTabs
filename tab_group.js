@@ -49,26 +49,31 @@ function load_tab_group(after= void_func){
 	});
 }
 
-function close_tabs(tab_list){
+function close_tabs(tab_list, after= void_func){
 	tab_list.forEach(function(tab){
 		chrome.tabs.remove(tab.id, function(){});
 	})
+	after();
 }
 
 function close_tab_url(url){
 	chrome.tabs.query({}, function(tabs){
+		var closed= false;
 		tabs.forEach(function(tab){
 			if(tab.url=== url){
 				if(tabs.length== 1){
 					chrome.tabs.create({"url":"chrome://newtab/", "active": true}, function(tab){});
 				}
-				chrome.tabs.remove(tab.id, function(){});
+				if(!closed){
+					chrome.tabs.remove(tab.id, function(){});
+					closed=true;
+				}
 			}
 		})
 	});
 }
 
-function restore_tab_group(group_idx, focusing_tab){
+function restore_tab_group(group_idx, focusing_tab, after= void_func){
 	cur_group_idx= group_idx;
 	chrome.tabs.query({}, function(tabs){
 		tab_group[group_idx]["tab_list"].forEach(function(restoring_tab){
@@ -78,7 +83,10 @@ function restore_tab_group(group_idx, focusing_tab){
 				chrome.tabs.create({"url":restoring_tab.url, "active": false}, function(tab){});
 			}
 		});//restore tab
-		close_tabs(tabs);
-		save_tab_group();
+		close_tabs(tabs, function(){
+			save_tab_group(function(){
+				after();
+			});
+		});
 	});
 }

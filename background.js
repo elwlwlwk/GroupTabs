@@ -35,10 +35,11 @@ function refresh_cur_tab_group(){
 function init_tab_group(){
 	load_tab_group(
 		function(){
-			restore_tab_group(cur_group_idx);
+			restore_tab_group(cur_group_idx, function(){
+				setInterval(function(){refresh_cur_tab_group()}, 1000);
+			});
 		}
 	)
 }
 
 init_tab_group();
-setInterval(function(){refresh_cur_tab_group()}, 1000);

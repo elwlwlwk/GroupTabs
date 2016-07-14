@@ -1,18 +1,18 @@
 var dragging_tab;
 
 chrome.windows.get(-2, {}, function(window){
-	if(window.width*0.8 <= 800){
-		document.documentElement.style.width= window.width*0.8+"px";
+	if(window.width*0.8 <= 780){
+		document.documentElement.style.width= window.minWidth*0.8+"px";
 	}
 	else{
-		document.documentElement.style.width= "800px";
+		document.documentElement.style.minWidth= "780px";
 	}
 
-	if(window.height*0.8 <= 600){
-		document.documentElement.style.height= window.height*0.8+"px";
+	if(window.height*0.8 <= 570){
+		document.documentElement.style.height= window.minHeight*0.8+"px";
 	}
 	else{
-		document.documentElement.style.height= "600px";
+		document.documentElement.style.minHeight= "570px";
 	}
 })
 
@@ -48,6 +48,9 @@ function render_tab_group(group_idx){
 			ev.preventDefault();
 			tab_group[idx]["tab_list"].push(dragging_tab["tab"]);
 			tab_group[dragging_tab["group_idx"]]["tab_list"].splice(tab_group[dragging_tab["group_idx"]]["tab_list"].indexOf(dragging_tab["tab"]),1);
+			if(idx== cur_group_idx){
+				chrome.tabs.create({"url":dragging_tab["tab"]["url"], "active": false}, function(tab){})
+			}
 			if(dragging_tab["group_idx"]== cur_group_idx){
 				close_tab_url(dragging_tab["tab"]["url"]);
 			}
@@ -86,11 +89,12 @@ function render_tab_group(group_idx){
 
 	tabs.forEach(function(tab){//append tab list to dom
 		var new_li= document.createElement("li");
+		new_li.className="col-xs-12";
 		var new_img= document.createElement("img");
 
 		var new_button= document.createElement("button");
 		new_button.draggable="true";
-		new_button.className="btn btn-default";
+		new_button.className="btn btn-default col-xs-10";
 		new_button.ondragstart= function(ev){
 			dragging_tab= {"group_idx": group_idx, "tab": tab};
 		}
@@ -98,10 +102,13 @@ function render_tab_group(group_idx){
 			restore_tab_group(group_idx, tab);
 		}
 		new_img.src = tab.favIconUrl;
+		new_img.className= "col-xs-1";
 
 		var remove_a= document.createElement("a");
+		remove_a.className="col-xs-1";
 		var remove_button= document.createElement("span");
 		remove_button.className= "glyphicon glyphicon-remove";
+		remove_button.style.fontSize="24px";
 		remove_button.onclick= function(){
 			tab_group[group_idx]["tab_list"].splice(tab_group[group_idx]["tab_list"].indexOf(tab), 1);
 			if(group_idx== cur_group_idx){
