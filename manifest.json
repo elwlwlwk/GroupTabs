@@ -3,7 +3,7 @@
 
 	"name": "Group Tabs",
 	"description": "Chrome extension inspired by Firefox tab group extension",
-	"version": "0.1.2",
+	"version": "0.1.3",
 
 	"browser_action": {
 		"default_icon": "icon.png",
