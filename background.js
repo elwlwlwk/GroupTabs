@@ -35,7 +35,7 @@ function refresh_cur_tab_group(){
 function init_tab_group(){
 	load_tab_group(
 		function(){
-			restore_tab_group(cur_group_idx, function(){
+			restore_tab_group(cur_group_idx, -1 ,function(){
 				setInterval(function(){refresh_cur_tab_group()}, 1000);
 			});
 		}
