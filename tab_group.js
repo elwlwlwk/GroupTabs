@@ -83,6 +83,9 @@ function restore_tab_group(group_idx, focusing_tab, after= void_func){
 				chrome.tabs.create({"url":restoring_tab.url, "active": false}, function(tab){});
 			}
 		});//restore tab
+		if(tab_group[group_idx]["tab_list"].length<1){
+			return;
+		}
 		close_tabs(tabs, function(){
 			save_tab_group(function(){
 				after();
